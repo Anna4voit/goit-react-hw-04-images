@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Loader } from './Loader/Loader';
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallary } from './ImageGallery/ImageGallery';
@@ -14,8 +14,8 @@ export const App = () => {
   const [search, setSearch] = useState('');
   const [images, setImages] = useState([]);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
   const per_page = 12;
+  const totalPages = useRef(0);
 
   useEffect(() => {
     const fetchImages = async () => {
@@ -34,7 +34,7 @@ export const App = () => {
         );
 
         setImages(prevImages => [...prevImages, ...currentImages]);
-        setTotalPages(Math.ceil(data.totalHits / per_page));
+        totalPages.current = Math.ceil(data.totalHits / per_page);
 
         if (page === 1) {
           return toast.success(`Hooray! We found ${data.totalHits} images.`);
@@ -72,7 +72,7 @@ export const App = () => {
       <Searchbar onSubmit={searchImage} />
       {images.length > 0 && <ImageGallary images={images} />}
       {loading && <Loader />}
-      {images.length > 0 && !loading && totalPages !== page && (
+      {images.length > 0 && !loading && totalPages.current !== page && (
         <Button onClick={loadMore} />
       )}
     </div>
